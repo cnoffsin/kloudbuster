@@ -58,7 +58,9 @@ function prompt_to_run() {
     fi
 }
 
-if [ "$1" == "--file" ] && [ -f "$2" ]; then
+echo $OS_TENANT_NAME
+
+if [ "$1" == "--file" ] && [ -f "$2" ] && [OS_TENANT_NAME=BSS_Validations]; then
     INSTANCE_LIST=`grep "instances" $2 | cut -d'|' -f3`
     SEC_GROUP_LIST=`grep "sec_groups" $2 | cut -d'|' -f3`
     FLAVOR_LIST=`grep "flavors" $2 | cut -d'|' -f3`
@@ -69,27 +71,30 @@ if [ "$1" == "--file" ] && [ -f "$2" ]; then
     FLOATINGIP_LIST=`grep "floating_ips" $2 | cut -d'|' -f3`
 else
     prompt_to_run;
-    INSTANCE_LIST=`nova list --all-tenants | grep KB  | cut -d'|' -f2`
-    SEC_GROUP_LIST=`neutron security-group-list | grep KB | cut -d'|' -f2`
-    FLAVOR_LIST=`nova flavor-list | grep kb | cut -d'|' -f3`
-    ROUTER_LIST=`neutron router-list | grep KB | cut -d'|' -f2`
-    NETWORK_LIST=`neutron net-list | grep KB | cut -d'|' -f2`
-    TENANT_LIST=`keystone tenant-list | grep KB | cut -d'|' -f2`
-    USER_LIST=`keystone user-list | grep KB | cut -d'|' -f2`
+    INSTANCE_LIST=`nova list --fields ID|grep -v ID | awk '{print $2}'`
+#    SEC_GROUP_LIST=`neutron security-group-list | cut -d'|' -f2`
+#    FLAVOR_LIST=`nova flavor-list | cut -d'|' -f3`
+    ROUTER_LIST=`neutron router-list | cut -d'|' -f2`
+    NETWORK_LIST=`neutron net-list | cut -d'|' -f2`
+#    TENANT_LIST=`keystone tenant-list | cut -d'|' -f2`
+#    USER_LIST=`keystone user-list | cut -d'|' -f2`
     FLOATINGIP_LIST=""
+    CINDER_SNAPSHOT_LIST=`openstack snapshot list -c ID|grep -v [ID,+]|awk '{print $2}'`
+    CINDER_VOLUME_LIST=`openstack volume list -c ID|grep -v [ID,+]|awk '{print $2}'`
 fi
 
+echo $INSTANCE_LIST
 for line in $INSTANCE_LIST; do
     nova delete $line
 done
 
-for line in $FLAVOR_LIST; do
-    nova flavor-delete $line
-done;
+#for line in $FLAVOR_LIST; do
+#    nova flavor-delete $line
+#done;
 
-for line in $SEC_GROUP_LIST; do
-    neutron security-group-delete $line &
-done;
+#for line in $SEC_GROUP_LIST; do
+#    neutron security-group-delete $line &
+#done;
 
 if [ "$FLOATINGIP_LIST" == "" ]; then
     echo -e "`neutron floatingip-list | grep -E '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'`" | while read line; do
@@ -117,10 +122,18 @@ for line in $NETWORK_LIST; do
     neutron net-delete $line
 done
 
-for line in $TENANT_LIST; do
-    keystone tenant-delete $line
+#for line in $TENANT_LIST; do
+#    keystone tenant-delete $line
+#done
+
+#for line in $USER_LIST; do
+#    keystone user-delete $line
+#done
+
+for line in $CINDER_SNAPSHOT_LIST; do
+    cinder snapshot-delete $line
 done
 
-for line in $USER_LIST; do
-    keystone user-delete $line
+for line in $CINDER_VOLUME_LIST; do
+    cinder delete $line
 done
