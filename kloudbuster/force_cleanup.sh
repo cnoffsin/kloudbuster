@@ -81,6 +81,7 @@ else
     FLOATINGIP_LIST=""
     CINDER_SNAPSHOT_LIST=`openstack snapshot list -c ID|grep -v [ID,+]|awk '{print $2}'`
     CINDER_VOLUME_LIST=`openstack volume list -c ID|grep -v [ID,+]|awk '{print $2}'`
+    CONTAINER_LIST=`swift list`
 fi
 
 echo $INSTANCE_LIST
@@ -136,4 +137,8 @@ done
 
 for line in $CINDER_VOLUME_LIST; do
     cinder delete $line
+done
+
+for line in $CONTAINER_LIST; do
+    swift delete $line --all
 done
