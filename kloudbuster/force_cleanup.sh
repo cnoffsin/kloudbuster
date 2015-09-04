@@ -49,6 +49,7 @@
 # BELONG TO KLOUDBUSTER ARE *NOT* CONTAINING "KB".
 # ======================================================
 
+echo "If this is not your tenant, or you are running as the admin user, ctrl-c now and do not run this script."
 echo $OS_TENANT_NAME
 
 function prompt_to_run() {
