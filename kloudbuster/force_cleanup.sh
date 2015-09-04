@@ -48,6 +48,9 @@
 # DOUBLE CHECK THE NAMES OF ALL RESOURCES THAT DO NOT
 # BELONG TO KLOUDBUSTER ARE *NOT* CONTAINING "KB".
 # ======================================================
+
+echo $OS_TENANT_NAME
+
 function prompt_to_run() {
     echo "Warning: You didn't specify a resource list file as the input,"\
          "or the input file is invalid. The script will delete all"\
@@ -57,8 +60,6 @@ function prompt_to_run() {
         exit 0
     fi
 }
-
-echo $OS_TENANT_NAME
 
 if [ "$1" == "--file" ] && [ -f "$2" ] && [OS_TENANT_NAME=BSS_Validations]; then
     INSTANCE_LIST=`grep "instances" $2 | cut -d'|' -f3`
