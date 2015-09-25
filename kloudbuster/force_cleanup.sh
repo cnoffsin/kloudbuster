@@ -62,17 +62,8 @@ function prompt_to_run() {
     fi
 }
 
-if [ "$1" == "--file" ] && [ -f "$2" ] && [OS_TENANT_NAME=BSS_Validations]; then
-    INSTANCE_LIST=`grep "instances" $2 | cut -d'|' -f3`
-    SEC_GROUP_LIST=`grep "sec_groups" $2 | cut -d'|' -f3`
-    FLAVOR_LIST=`grep "flavors" $2 | cut -d'|' -f3`
-    ROUTER_LIST=`grep "routers" $2 | cut -d'|' -f3`
-    NETWORK_LIST=`grep "networks" $2 | cut -d'|' -f3`
-    TENANT_LIST=`grep "tenants" $2 | cut -d'|' -f3`
-    USER_LIST=`grep "users" $2 | cut -d'|' -f3`
-    FLOATINGIP_LIST=`grep "floating_ips" $2 | cut -d'|' -f3`
-else
-    prompt_to_run;
+if [OS_TENANT_NAME != admin]; then
+    
     INSTANCE_LIST=`nova list --fields ID|grep -v ID | awk '{print $2}'`
 #    SEC_GROUP_LIST=`neutron security-group-list | cut -d'|' -f2`
 #    FLAVOR_LIST=`nova flavor-list | cut -d'|' -f3`
@@ -84,6 +75,8 @@ else
     CINDER_SNAPSHOT_LIST=`openstack snapshot list -c ID|grep -v [ID,+]|awk '{print $2}'`
     CINDER_VOLUME_LIST=`openstack volume list -c ID|grep -v [ID,+]|awk '{print $2}'`
 #    CONTAINER_LIST=`swift list`
+else
+    echo "You are running against admin tenant, can't do that."
 fi
 
 echo $INSTANCE_LIST
