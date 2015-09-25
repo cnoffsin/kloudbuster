@@ -159,3 +159,7 @@ for line in $LB_LIST; do
     neutron lb-pool-delete $line &
 done;
 
+for line in $STACK_LIST; do
+    heat delete $line &
+done;
+
