@@ -54,8 +54,8 @@ echo $OS_TENANT_NAME
 
 function prompt_to_run() {
     echo "Warning: You didn't specify a resource list file as the input,"\
-         "or the input file is invalid. The script will delete all"\
-         "resources of the cloud whose names contain \"KB\". "
+         "or the input file is invalid. The script will delete ALL"\
+         "the resources in the tenant. "
     read -p "Are you sure? (Y/N) " answer
     if [ "$answer" != "Y" ] && [ "$answer" != "y" ]; then
         exit 0
