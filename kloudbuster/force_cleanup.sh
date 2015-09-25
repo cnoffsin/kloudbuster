@@ -160,6 +160,6 @@ for line in $LB_LIST; do
 done;
 
 for line in $STACK_LIST; do
-    heat delete $line &
+    heat stack-delete $line &
 done;
 
