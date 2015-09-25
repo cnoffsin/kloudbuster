@@ -76,6 +76,10 @@ if [ "$OS_TENANT_NAME" != "admin" ]; then
     CINDER_SNAPSHOT_LIST=`openstack snapshot list -c ID|grep -v [ID,+]|awk '{print $2}'`
     CINDER_VOLUME_LIST=`openstack volume list -c ID|grep -v [ID,+]|awk '{print $2}'`
 #    CONTAINER_LIST=`swift list`
+    LB_VIP_LIST=`neutron lb-vip-list |cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
+    LB_LIST=`neutron lb-pool-list |cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
+    FW_LIST=`neutron firewall-list |cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
+    
 else
     echo "You are running against admin tenant, can't do that."
 fi
