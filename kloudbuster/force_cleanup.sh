@@ -62,7 +62,8 @@ function prompt_to_run() {
     fi
 }
 
-if [OS_TENANT_NAME != admin]; then
+if [ "$OS_TENANT_NAME" != "admin" ]; then
+    prompt_to_run;
     
     INSTANCE_LIST=`nova list --fields ID|grep -v ID | awk '{print $2}'`
 #    SEC_GROUP_LIST=`neutron security-group-list | cut -d'|' -f2`
