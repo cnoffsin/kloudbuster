@@ -77,7 +77,7 @@ else
 #    SEC_GROUP_LIST=`neutron security-group-list | cut -d'|' -f2`
 #    FLAVOR_LIST=`nova flavor-list | cut -d'|' -f3`
     ROUTER_LIST=`neutron router-list | cut -d'|' -f2`
-    NETWORK_LIST=`neutron net-list | cut -d'|' -f2`
+    NETWORK_LIST=`neutron router-list |cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
 #    TENANT_LIST=`keystone tenant-list | cut -d'|' -f2`
 #    USER_LIST=`keystone user-list | cut -d'|' -f2`
     FLOATINGIP_LIST=""
