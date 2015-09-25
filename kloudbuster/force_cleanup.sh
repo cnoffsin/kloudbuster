@@ -111,6 +111,19 @@ else
     done;
 fi
 
+for line in $LB_VIP_LIST; do
+    neutron lb-vip-delete $line &
+done;
+
+for line in $LB_LIST; do
+    neutron lb-pool-delete $line &
+done;
+
+for line in $FW_LIST; do
+    neutron firewall-delete $line &
+done;
+
+
 for line in $ROUTER_LIST; do
     neutron router-gateway-clear $line
     for line2 in `neutron router-port-list $line | grep subnet_id | cut -d'"' -f4`; do
