@@ -115,9 +115,6 @@ for line in $LB_VIP_LIST; do
     neutron lb-vip-delete $line &
 done;
 
-for line in $LB_LIST; do
-    neutron lb-pool-delete $line &
-done;
 
 for line in $FW_LIST; do
     neutron firewall-delete $line &
@@ -156,3 +153,8 @@ done
 #    swift delete $line --all
 #done
 swift delete --all
+
+for line in $LB_LIST; do
+    neutron lb-pool-delete $line &
+done;
+
