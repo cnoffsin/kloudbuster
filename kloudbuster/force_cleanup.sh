@@ -79,7 +79,7 @@ if [ "$OS_TENANT_NAME" != "admin" ]; then
     LB_VIP_LIST=`neutron lb-vip-list |cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
     LB_LIST=`neutron lb-pool-list |cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
     FW_LIST=`neutron firewall-list |cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
-    STACK_LIST=`heat list |cut -d'|' -f2|grep -v +|grep -v id`
+    STACK_LIST=`heat stack-list |cut -d'|' -f2|grep -v +|grep -v id`
     
 else
     echo "You are running against admin tenant, can't do that."
