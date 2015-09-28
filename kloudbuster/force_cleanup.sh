@@ -50,7 +50,10 @@
 # ======================================================
 
 echo "If this is not your tenant, or you are running as the admin user, ctrl-c now and do not run this script."
+echo "Tenant Name"
 echo $OS_TENANT_NAME
+echo "Username"
+echo $OS_USERNAME
 
 function prompt_to_run() {
     echo "Warning: You didn't specify a resource list file as the input,"\
@@ -62,7 +65,7 @@ function prompt_to_run() {
     fi
 }
 
-if [ "$OS_TENANT_NAME" != "admin" ]; then
+if [ "$OS_TENANT_NAME" != "admin" ]||[ "$OS_USERNAME" != "admin" ]; then
     prompt_to_run;
     
     INSTANCE_LIST=`nova list --fields ID|grep -v ID | awk '{print $2}'`
