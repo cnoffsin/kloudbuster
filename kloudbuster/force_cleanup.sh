@@ -50,10 +50,7 @@
 # ======================================================
 
 echo "If this is not your tenant, or you are running as the admin user, ctrl-c now and do not run this script."
-echo "Tenant Name"
 echo $OS_TENANT_NAME
-echo "Username"
-echo $OS_USERNAME
 
 function prompt_to_run() {
     echo "Warning: You didn't specify a resource list file as the input,"\
@@ -65,14 +62,15 @@ function prompt_to_run() {
     fi
 }
 
-if [ "$OS_TENANT_NAME" != "admin" ]||[ "$OS_USERNAME" != "admin" ]; then
+if [ "$OS_TENANT_NAME" != "admin" ]; then
     prompt_to_run;
     
     INSTANCE_LIST=`nova list --fields ID|grep -v ID | awk '{print $2}'`
-#    SEC_GROUP_LIST=`neutron security-group-list | cut -d'|' -f2`
+    SEC_GROUP_LIST=`neutron security-group-list|grep heat | cut -d'|' -f2`
 #    FLAVOR_LIST=`nova flavor-list | cut -d'|' -f3`
     ROUTER_LIST=`neutron router-list |cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
     NETWORK_LIST=`neutron net-list |grep -v floating|cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
+    SUBNET_LIST=`neutron subnet-list |grep -v floating|cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
 #    TENANT_LIST=`keystone tenant-list | cut -d'|' -f2`
 #    USER_LIST=`keystone user-list | cut -d'|' -f2`
     FLOATINGIP_LIST=""
@@ -83,6 +81,7 @@ if [ "$OS_TENANT_NAME" != "admin" ]||[ "$OS_USERNAME" != "admin" ]; then
     LB_LIST=`neutron lb-pool-list |cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
     FW_LIST=`neutron firewall-list |cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
     STACK_LIST=`heat stack-list |cut -d'|' -f2|grep -v +|grep -v id`
+    IMAGE_LIST=`glance image-list |grep -v [ID,+]|grep snap|awk '{print $2}'`
     
 else
     echo "You are running against admin tenant, can't do that."
@@ -91,15 +90,15 @@ fi
 echo $INSTANCE_LIST
 for line in $INSTANCE_LIST; do
     nova delete $line
-done
+done;
 
 #for line in $FLAVOR_LIST; do
 #    nova flavor-delete $line
 #done;
 
-#for line in $SEC_GROUP_LIST; do
-#    neutron security-group-delete $line &
-#done;
+for line in $SEC_GROUP_LIST; do
+    neutron security-group-delete $line &
+done;
 
 if [ "$FLOATINGIP_LIST" == "" ]; then
     echo -e "`neutron floatingip-list | grep -E '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'`" | while read line; do
@@ -119,23 +118,29 @@ for line in $LB_VIP_LIST; do
     neutron lb-vip-delete $line &
 done;
 
+for line in $LB_LIST; do
+    neutron lb-pool-delete $line &
+done;
 
 for line in $FW_LIST; do
     neutron firewall-delete $line &
 done;
 
-
 for line in $ROUTER_LIST; do
     neutron router-gateway-clear $line
     for line2 in `neutron router-port-list $line | grep subnet_id | cut -d'"' -f4`; do
         neutron router-interface-delete $line $line2
-    done
+    done;
     neutron router-delete $line
-done
+done;
+
+for line in $SUBNET_LIST; do
+    neutron subnet-delete $line
+done;
 
 for line in $NETWORK_LIST; do
     neutron net-delete $line
-done
+done;
 
 #for line in $TENANT_LIST; do
 #    keystone tenant-delete $line
@@ -147,22 +152,23 @@ done
 
 for line in $CINDER_SNAPSHOT_LIST; do
     cinder snapshot-delete $line
-done
+done;
 
-for line in $CINDER_VOLUME_LIST; do
-    cinder delete $line
-done
+echo "Sleeping for 60 seconds to let cinder get finished deleting snapshots"
 
 #for line in $CONTAINER_LIST; do
 #    swift delete $line --all
 #done
 swift delete --all
 
-for line in $LB_LIST; do
-    neutron lb-pool-delete $line &
+for line in $CINDER_VOLUME_LIST; do
+    cinder delete $line
 done;
 
 for line in $STACK_LIST; do
     heat stack-delete $line &
 done;
 
+for line in $IMAGE_LIST; do
+    glance image-delete $line &
+done;
