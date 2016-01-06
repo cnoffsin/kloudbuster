@@ -71,6 +71,7 @@ if [ "$OS_TENANT_NAME" != "admin" ]; then
     ROUTER_LIST=`neutron router-list |cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
     NETWORK_LIST=`neutron net-list |grep -v floating|cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
     SUBNET_LIST=`neutron subnet-list |grep -v floating|cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
+    PORT_LIST=`neutron port-list |grep -v floating|cut -d'|' -f2| grep -v external_gateway_info|grep -v +|grep -v id`
 #    TENANT_LIST=`keystone tenant-list | cut -d'|' -f2`
 #    USER_LIST=`keystone user-list | cut -d'|' -f2`
     FLOATINGIP_LIST=""
@@ -132,6 +133,10 @@ for line in $ROUTER_LIST; do
         neutron router-interface-delete $line $line2
     done;
     neutron router-delete $line
+done;
+
+for line in $PORT_LIST; do
+    neutron port-delete $line &
 done;
 
 for line in $SUBNET_LIST; do
